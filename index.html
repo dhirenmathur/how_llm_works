@@ -1,0 +1,711 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>How LLMs Work! </title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-interactiveBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="9be0ab0b-2176-4588-beed-946110b3f5e2" class="page sans"><header><img class="page-cover-image" src="How%20LLMs%20Work!%209be0ab0b21764588beed946110b3f5e2/960x0.png.webp" style="object-position:center 64.68%"/><h1 class="page-title">How LLMs Work! </h1><p class="page-description"></p></header><div class="page-body"><p id="16e0d66d-7bee-4e2b-8063-6895007851b0" class="">
+</p><p id="5e45c3e9-2413-409c-b20e-0c6b16ce8efd" class="">
+</p><p id="e59d7775-d505-4bbb-b5bd-f37a04ea9705" class="">There’s a fair chance that if you’ve been on the internet in 2023, you have come across or used ChatGPT and similar tools. LLMs, or Large Language Models, are the tech behind ChatGPT. They are a type of machine learning model used for natural language processing tasks such as language generation and text classification. They are capable of generating new text that is similar in style and content to the training data. As they are trained on large sets human generated data, they makes them able to <em>mimic</em> human intelligence</p><p id="ee898d52-132e-4a78-a21c-d3a6c91b705c" class="">
+</p><h2 id="d4970710-df25-47e0-947f-89331c4179b9" class="">Evolution of language models</h2><p id="97a2ec25-e5cc-482c-87fc-51571bc568fa" class="">
+</p><p id="7d1ec900-d2ca-4817-bdec-ea60e2ececd0" class=""><em>Language modeling is the task of predicting what word comes next. A system that does language modeling is called a Language model.</em></p><p id="14b4af76-e2d8-467a-877b-66332f997aee" class="">
+</p><p id="f949d520-8e9d-47fa-9a17-da178ca6f5c8" class="">These models began with simple statistical approaches, such as counting word frequencies and utilizing techniques like <strong>N-grams,</strong> which consider the probabilities of word sequences based on historical data. 
+</p><figure id="6afdaf31-4157-41f5-a900-f94ab65b020f" class="image"><a href="How%20LLMs%20Work!%209be0ab0b21764588beed946110b3f5e2/Untitled.png"><img style="width:1424px" src="How%20LLMs%20Work!%209be0ab0b21764588beed946110b3f5e2/Untitled.png"/></a><figcaption>n-gram: Every word depends on the previous n-1 word. </figcaption></figure><p id="b4d17a47-194d-49f0-8285-9276d1ed0b3a" class="">
+</p><p id="cb458ed7-ec07-46ab-8f55-184f9d88d97a" class="">By understanding the statistical relationships between words and phrases, these models were able to perform tasks such as correcting grammar, suggesting next words, or even translating between languages at a rudimentary level.</p><p id="63c58297-d7ca-45c7-ab99-9d5cbe6a7aae" class="">
+</p><p id="92d45e23-7868-406c-9321-e1c1942e7dcd" class="">As limitations of rule-based and statistical models became apparent, language models moved towards <strong>neural network</strong>-based approaches. These new models could understand nuances and context in language far beyond what early models could achieve. </p><p id="33bb15e3-fd28-4d49-b1b5-dd4fba833089" class="">
+</p><p id="d613f4eb-95de-455e-a925-2c1f12534025" class=""><strong><mark class="highlight-yellow_background">Neural Networks</mark></strong><mark class="highlight-yellow_background"> are inspired by the human brain, mimicking the way that biological neurons signal to one another. They are comprised of a node layers, containing an input layer, one or more hidden layers, and an output layer. Each node, or artificial neuron, connects to another and has an associated weight and threshold. If the output of any individual node is above the specified threshold value, that node is activated, sending data to the next layer of the network. Otherwise, no data is passed along to the next layer of the network.</mark></p><p id="c5ae1da5-ab94-4ac6-87c6-b335bb787bc8" class=""><mark class="highlight-yellow_background">Neural networks rely on training data to learn and improve their accuracy over time.</mark></p><p id="343e3afd-af96-41e8-affb-56d4cfa0bb6b" class="">
+</p><figure id="c403c0c5-dbec-4c7c-9f8f-7acfd7ff6a09" class="image"><a href="How%20LLMs%20Work!%209be0ab0b21764588beed946110b3f5e2/Untitled%201.png"><img style="width:1280px" src="How%20LLMs%20Work!%209be0ab0b21764588beed946110b3f5e2/Untitled%201.png"/></a></figure><p id="5ce1e178-7c68-4c40-83f6-75f9b2b26fa8" class="">
+</p><p id="4c7e1e25-e96a-47a9-91f9-98ad24b6f8e9" class="">Language models evolved towards using a specific type of neural network called the <strong>Recurrent Neural Network (RNNs), </strong>this solved a particular problem that was limiting existing language models - memory. A defining feature of RNNs is that unlike orher neural networks, in RNNs all the inputs are dependent on each other, it remembers what it knows from previous input using a simple loop which the information from previous time stamp and adds it to the input of current time stamp. This knowledge of the relationship among all the previous words helps to predict a better output. 
+</p><figure id="8b04a92c-542d-4132-aca1-9268df3eec48" class="image"><a href="How%20LLMs%20Work!%209be0ab0b21764588beed946110b3f5e2/Untitled%202.png"><img style="width:754px" src="How%20LLMs%20Work!%209be0ab0b21764588beed946110b3f5e2/Untitled%202.png"/></a></figure><p id="48614a2f-7914-40bc-8d47-6360302a4d2f" class="">
+</p><p id="1d6aa55f-7d08-49e2-a549-739a2b131426" class="">But, vanilla RNNs were not very good at retaining these dependencies over long sequences, this was called the vanishing gradient problem. A particular type of RNN known as the <strong>Long Short-Term Memory Networks (LSTM) </strong>was introduced to bypass this problem. LSTMs store the information for the previous state and current input in a “cell” (memory) instead of in the hidden state. This enables them to learn long term dependencies from text without older states and inputs “vanishing”. LSTMs have  been used for tasks like text classification, sentiment analysis, and language modelling.</p><p id="6fcca353-a9dc-4426-8f34-4ec32c246506" class="">
+</p><p id="68b518b4-015b-4ef1-98fe-a53ec461a459" class="">However, since RNNs work by passing information along to each step sequentially, they can only run in an ordered manner. Thus they are slow. Another problem that RNNs have is that they are only getting context from previous step, even bidirectional RNNs get context only from its immediate neighbours. Due to this there is some meaning that is lost down the line. These problems provide the motivation for the next kind of neural networks that form the base of modern LLMs like GPT - Transformer Neural Networks  </p><p id="8545d23c-c196-45a4-9ba7-91484233cbe7" class="">
+</p><h2 id="a8723cf4-c57b-4935-ac34-cc30b56d36df" class="">Transformer Neural Networks </h2><p id="22727acd-29fd-48f2-80eb-5af150c7b3a4" class="">
+</p><p id="bd9a1ebb-818d-48d9-8013-a24cff7ea25e" class="">In their famously titled <a href="https://arxiv.org/pdf/1706.03762.pdf">“Attention Is All You Need“</a> paper, the authors described transformer architecture for neural networks:</p><p id="74d89fe8-d230-41d5-af33-6716c4dcca50" class="">
+</p><p id="d859488e-9195-407f-a9a5-1980d10ee3c5" class="block-color-blue_background">We propose a new simple network architecture, the Transformer,
+based solely on attention mechanisms, dispensing with recurrence and convolutions
+entirely. Experiments on two machine translation tasks show these models to
+be superior in quality while being more parallelizable and requiring significantly
+less time to train.</p><p id="c7e01d6b-d2a8-4649-9d0e-9f49108c5b66" class="">
+</p><p id="70ed0f1e-e61f-4f4b-bf75-040731c7742d" class="">What transformer networks aim to do is to use “<em>attention</em>” in order to understand the importance of each word in a sentence. Instead of getting context only from the previous encoder state as is the case with RNNs, in each state of the transformer decoder we look at all previous states of the encoder, thus  it extracts all information for the whole sequence, this is what they term as “attention”.  This allows the decoder to assign greater weight or importance to a certain element of the input for each element of the output. Learning in every step to focus in the right element of the input to predict the next output element. As no recurrent steps are used and only weighted sums and activations are needed here, it is very parallelizable. </p><p id="f46a7015-70e2-4706-90d0-7b8c61350f82" class="">
+</p><h3 id="43d84028-a15f-4d02-8147-c906cdd228a5" class="">Architecture</h3><p id="f2e15937-1300-4517-b58b-0a983c8692b5" class="">Let’s dive into the architecture of transformer neural networks and break it down: </p><p id="ebeacf66-ef46-4437-a307-f9a8a623da13" class="">
+</p><figure id="e13af7df-e5a1-4772-a4ba-3da4153856b9" class="image"><a href="How%20LLMs%20Work!%209be0ab0b21764588beed946110b3f5e2/Untitled%203.png"><img style="width:428px" src="How%20LLMs%20Work!%209be0ab0b21764588beed946110b3f5e2/Untitled%203.png"/></a></figure><ol type="1" id="d861292e-613a-4926-852a-00ae4eab12a8" class="numbered-list" start="1"><li><strong>Encoder:</strong></li></ol><p id="71211c2e-9b79-473d-937b-f0feeeaf45d9" class="">The encoder consists of a stack of identical layers (e.g., 6 layers in the original Transformer model). Each layer has two main components:</p><ul id="fc8355e4-fcdc-4583-bb68-1072f2e22861" class="bulleted-list"><li style="list-style-type:disc"><strong>Multi-Head Self-Attention Mechanism</strong>: This allows the encoder to consider other parts of the input sequence when encoding a particular part, providing context for understanding the relationships between words or tokens.</li></ul><ul id="7baf6ef2-798e-4b74-aee9-0731e3daa3eb" class="bulleted-list"><li style="list-style-type:disc"><strong>Feed-Forward Neural Network</strong>: After attention, the output passes through a feed-forward neural network (the same one for each position) followed by layer normalization.</li></ul><p id="88eed06a-f3b2-4b95-9fce-01cd305ab83b" class="">
+</p><p id="824a92da-881d-426b-9e35-a52d5b859a11" class="block-color-yellow_background"><strong>Layer Normalisation</strong>: In deep learning, normalization is like adjusting the volume levels of different instruments in a band so that one doesn&#x27;t drown out the others. It helps everything work together more smoothly. Layer Normalization<strong> </strong>technique adjusts the volume of each instrument (feature) for each song individually, making sure that, within each song, no instrument is too loud or too soft compared to the others.</p><p id="bed92c96-9b7e-4f56-8451-3eb495dae9d9" class="">
+</p><p id="4db4d6f1-2a2b-4534-b7c3-e041731f1db3" class="">The above components are connected using residual connections, this helps in training deeper models.</p><p id="3f619a5b-df07-4e59-b718-505c9e49272a" class="">
+</p><p id="829e8bcf-c8f4-4b26-8287-21bec6c75cac" class="block-color-yellow_background"><strong>Residual connections:</strong> They are an essential component in deep learning architectures. They allow the output of one layer to bypass one or more intermediate layers and be added directly to the output of later layers. </p><p id="666d3523-dc57-4c5e-990f-826ef08e391d" class="">
+</p><p id="58f9ed10-33a2-4e07-b4a4-9f8942f903f7" class="">The encoder takes the input sequence and processes it through all its layers, producing a continuous representation that captures the context of each word in the sequence with respect to all other words.</p><p id="6fe7d4f0-e8d0-4f4e-b552-52a49fb4ebe0" class="">
+</p><p id="0ce617ad-cc34-4c93-82e4-0eab7325687c" class="">
+</p><p id="55e33922-93c7-481d-ac60-cd0a8e2ce8f7" class="">2<strong>. Decoder:</strong></p><p id="365b51b3-74e6-464f-b07d-43cade7c10e6" class="">The decoder also consists of a stack of identical layers (the same number as in the encoder), and each layer has three main components:</p><ul id="c361e3aa-5745-4033-a2dd-e2062c2634cd" class="bulleted-list"><li style="list-style-type:disc"><strong>Multi-Head Self-Attention Mechanism</strong>: Similar to the one in the encoder, but operates on the outputs of the previous layer of the decoder. This allows the model to focus on different parts of the input sequence as needed.</li></ul><ul id="57c7480c-3d25-484e-9b9a-e34b517dca86" class="bulleted-list"><li style="list-style-type:disc"><strong>Multi-Head Cross-Attention Mechanism</strong>: This attends to the encoder&#x27;s output, allowing the decoder to consider the entire input sequence when generating each word in the output sequence.</li></ul><ul id="7702205f-509c-401a-9b62-e2da763fe5bd" class="bulleted-list"><li style="list-style-type:disc"><strong>Feed-Forward Neural Network</strong>: Like in the encoder, the output of the attention mechanisms passes through a feed-forward neural network followed by layer normalization.</li></ul><p id="794f75a9-3c3c-42e8-978b-e304d1ae49d8" class="">Again, residual connections are used for ease of training.</p><p id="cc3a2675-6605-41ab-acb3-ae4ed2487c6d" class="">The decoder&#x27;s aim is to generate the output sequence, one symbol (e.g., word or character) at a time, using the continuous representations provided by the encoder and its own previous outputs.</p><p id="36321735-6371-43b1-989d-70495377af5d" class="">
+</p><ol type="1" id="8392b73e-183c-47f4-9f4c-a8a209a6f35f" class="numbered-list" start="3"><li><strong>Self-Attention:</strong></li></ol><p id="3c61a538-a61d-485c-be32-d6e1b968c956" class="">Self-attention in Large Language Models (LLMs) like Transformers is a mechanism that helps the model pay attention to different parts of a sentence to better understand it. It looks at all the words in the sentence at the same time and figures out how much attention each word should pay to the other words to make sense of the whole sentence.</p><p id="dd1e56f2-2dc7-486b-ad87-f092268016ce" class="">In simple terms, it&#x27;s like the model giving a &quot;score&quot; to the relationships between words, so it knows which words are most relevant to each other. This helps the model understand the meaning of the sentence better and captures the relationships between words, even if they are far apart in the sentence.</p><p id="ba0739aa-90f8-4128-822f-86719c1f915a" class="">This is the only operation in the whole architecture that propagates information <em>between</em> vectors. Every other operation in the transformer is applied to each vector in the input sequence without interactions between vectors.</p><p id="cae1f63b-8b50-4fd0-9c73-d9683a29b3de" class="">
+</p><ol type="1" id="d63f3c50-18e1-40a1-b79c-5168595c3b26" class="numbered-list" start="4"><li><strong>Positional Encoding</strong></li></ol><p id="151f7901-7de6-47a3-99d0-2111a30a9f96" class="">In models like the Transformer that rely solely on attention mechanisms and do not use recurrent layers, they do not inherently capture the order of the sequence, positional encoding is necessary to give the model information about the positions of the tokens in the sequence. </p><p id="fd1e9987-f77d-41c9-ac67-9f5bd39eb4c6" class="">“I am groot” and “groot I am” will return the same results. Thus we need to create a representation of the position to the word and add it to the token embedding. </p><p id="5d7b16fd-f14f-40b0-b25f-a42820d170bb" class="">The encoding must have the same dimensionality as the embeddings so that the model can process both the content and position information together. The algorithm to calculate the encoding in the original transformer paper makes it possible to be applied to sequences of different sizes ensuring that it’s flexible to different tasks and inputs. 
+
+Since the model now has both positional encoding and input encoding, it is capable of much more nuanced understanding and generation of data. </p><p id="da902a7c-7e56-4da7-84bf-da37ef08ed52" class="">
+</p></div></article></body></html>
